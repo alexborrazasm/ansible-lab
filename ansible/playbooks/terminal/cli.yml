@@ -1,0 +1,12 @@
+---
+- name: Install CLI tools
+  hosts: local
+  become: true
+
+  tasks:
+    - name: Install CLI tools via dnf
+      ansible.builtin.dnf:
+        name:
+          - htop
+          - fastfetch
+        state: present

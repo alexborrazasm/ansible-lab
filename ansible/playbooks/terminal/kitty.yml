@@ -1,0 +1,25 @@
+---
+- name: Install kitty
+  hosts: local
+  become: true
+
+  tasks:
+    - name: Install kitty via dnf
+      ansible.builtin.dnf:
+        name: kitty
+        state: present
+
+- name: Configure kitty
+  hosts: local
+
+  tasks:
+    - name: Create kitty config directory
+      ansible.builtin.file:
+        path: ~/.config/kitty
+        state: directory
+        mode: '0755'
+
+    - name: Copy kitty config
+      ansible.builtin.copy:
+        src: kitty.conf
+        dest: ~/.config/kitty/kitty.conf

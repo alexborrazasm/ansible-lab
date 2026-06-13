@@ -1,0 +1,15 @@
+---
+- name: Install browsers for web development
+  hosts: local
+  become: true
+
+  tasks:
+    - name: Install Firefox
+      ansible.builtin.dnf:
+        name: firefox
+        state: present
+
+    - name: Install Google Chrome stable
+      ansible.builtin.dnf:
+        name: google-chrome-stable
+        state: present

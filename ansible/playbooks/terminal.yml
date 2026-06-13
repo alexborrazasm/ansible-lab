@@ -1,0 +1,5 @@
+---
+- import_playbook: terminal/fonts.yml
+- import_playbook: terminal/kitty.yml
+- import_playbook: terminal/zsh.yml
+- import_playbook: terminal/cli.yml

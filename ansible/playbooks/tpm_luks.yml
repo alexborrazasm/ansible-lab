@@ -1,0 +1,29 @@
+---
+- name: Bind LUKS to TPM2 via systemd-cryptenroll
+  hosts: local
+  become: true
+
+  tasks:
+    - name: Check if TPM2 slot already enrolled
+      ansible.builtin.command: systemd-cryptenroll --list {{ luks_device }}
+      register: enrolled_slots
+      changed_when: false
+
+    - name: Write passphrase to temp file
+      ansible.builtin.copy:
+        content: "{{ luks_passphrase }}"
+        dest: /tmp/.luks_pass
+        mode: '0600'
+      no_log: true
+      when: "'tpm2' not in enrolled_slots.stdout"
+
+    - name: Enroll TPM2
+      ansible.builtin.command:
+        cmd: systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 --unlock-key-file=/tmp/.luks_pass {{ luks_device }}
+      no_log: true
+      when: "'tpm2' not in enrolled_slots.stdout"
+
+    - name: Remove temp passphrase file
+      ansible.builtin.file:
+        path: /tmp/.luks_pass
+        state: absent

@@ -1,0 +1,37 @@
+---
+- name: Install Hoppscotch
+  hosts: local
+
+  tasks:
+    - name: Create Applications directory
+      ansible.builtin.file:
+        path: "{{ ansible_facts['env']['HOME'] }}/Applications"
+        state: directory
+        mode: '0755'
+
+    - name: Download Hoppscotch AppImage
+      ansible.builtin.get_url:
+        url: https://github.com/hoppscotch/releases/releases/latest/download/Hoppscotch_linux_x64.AppImage
+        dest: "{{ ansible_facts['env']['HOME'] }}/Applications/Hoppscotch.AppImage"
+        mode: '0755'
+
+    - name: Extract icon from AppImage
+      ansible.builtin.shell:
+        cmd: |
+          ./Hoppscotch.AppImage --appimage-extract '*.png' 2>/dev/null
+          cp squashfs-root/Hoppscotch.png hoppscotch.png
+          rm -rf squashfs-root
+        chdir: "{{ ansible_facts['env']['HOME'] }}/Applications"
+        creates: "{{ ansible_facts['env']['HOME'] }}/Applications/hoppscotch.png"
+
+    - name: Create desktop entry
+      ansible.builtin.copy:
+        dest: "{{ ansible_facts['env']['HOME'] }}/.local/share/applications/hoppscotch.desktop"
+        mode: '0644'
+        content: |
+          [Desktop Entry]
+          Name=Hoppscotch
+          Exec={{ ansible_facts['env']['HOME'] }}/Applications/Hoppscotch.AppImage
+          Icon={{ ansible_facts['env']['HOME'] }}/Applications/hoppscotch.png
+          Type=Application
+          Categories=Development;

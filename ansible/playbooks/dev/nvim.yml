@@ -1,0 +1,27 @@
+---
+- name: Install neovim
+  hosts: local
+  become: true
+
+  tasks:
+    - name: Install neovim and clipboard support
+      ansible.builtin.dnf:
+        name:
+          - neovim
+          - wl-clipboard
+        state: present
+
+- name: Configure neovim
+  hosts: local
+
+  tasks:
+    - name: Create nvim config directory
+      ansible.builtin.file:
+        path: ~/.config/nvim
+        state: directory
+        mode: '0755'
+
+    - name: Copy nvim config
+      ansible.builtin.copy:
+        src: nvim/init.lua
+        dest: ~/.config/nvim/init.lua

@@ -1,0 +1,3 @@
+---
+- import_playbook: playbooks/tpm_luks.yml
+- import_playbook: setup.yml

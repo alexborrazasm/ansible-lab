@@ -1,0 +1,41 @@
+---
+- name: Install Docker
+  hosts: local
+  become: true
+
+  tasks:
+    - name: Import Docker GPG key
+      ansible.builtin.rpm_key:
+        key: https://download.docker.com/linux/fedora/gpg
+        state: present
+
+    - name: Add Docker repository
+      ansible.builtin.yum_repository:
+        name: docker-ce
+        description: Docker CE Stable
+        baseurl: https://download.docker.com/linux/fedora/$releasever/$basearch/stable
+        gpgkey: https://download.docker.com/linux/fedora/gpg
+        gpgcheck: true
+        enabled: true
+
+    - name: Install Docker packages
+      ansible.builtin.dnf:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Enable and start Docker service
+      ansible.builtin.service:
+        name: docker
+        enabled: true
+        state: started
+
+    - name: Add current user to docker group
+      ansible.builtin.user:
+        name: "{{ ansible_facts['env']['SUDO_USER'] }}"
+        groups: docker
+        append: true

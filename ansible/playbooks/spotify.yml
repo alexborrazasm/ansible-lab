@@ -1,0 +1,19 @@
+---
+- name: Install Spotify
+  hosts: local
+  become: true
+
+  tasks:
+    - name: Check existing Flathub remotes
+      ansible.builtin.command: flatpak remotes --columns=name
+      register: flatpak_remotes
+      changed_when: false
+
+    - name: Add Flathub remote
+      ansible.builtin.command: flatpak remote-add flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+      when: "'flathub' not in flatpak_remotes.stdout"
+
+    - name: Install Spotify
+      ansible.builtin.command: flatpak install -y flathub com.spotify.Client
+      args:
+        creates: /var/lib/flatpak/app/com.spotify.Client

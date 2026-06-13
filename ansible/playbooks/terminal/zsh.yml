@@ -1,0 +1,92 @@
+---
+- name: Install zsh and modern CLI tools
+  hosts: local
+  become: true
+
+  tasks:
+    - name: Install packages
+      ansible.builtin.dnf:
+        name:
+          - zsh
+          - zsh-syntax-highlighting
+          - zsh-autosuggestions
+          - bat
+          - lsd
+          - fzf
+          - direnv
+        state: present
+
+    - name: Enable starship COPR repo
+      ansible.builtin.command: dnf copr enable atim/starship -y
+      args:
+        creates: /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:atim:starship.repo
+
+    - name: Install starship via dnf
+      ansible.builtin.dnf:
+        name: starship
+        state: present
+
+    - name: Create sudo plugin directory
+      ansible.builtin.file:
+        path: /usr/share/zsh-sudo
+        state: directory
+        mode: '0755'
+
+    - name: Download sudo plugin
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/sudo/sudo.plugin.zsh
+        dest: /usr/share/zsh-sudo/sudo.plugin.zsh
+        mode: '0644'
+
+    - name: Create extract plugin directory
+      ansible.builtin.file:
+        path: /usr/share/zsh-extract
+        state: directory
+        mode: '0755'
+
+    - name: Download extract plugin
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/le0me55i/zsh-extract/refs/heads/master/extract.plugin.zsh
+        dest: /usr/share/zsh-extract/extract.plugin.zsh
+        mode: '0644'
+
+    - name: Set zsh as default shell
+      ansible.builtin.user:
+        name: "{{ ansible_facts['env']['SUDO_USER'] }}"
+        shell: /bin/zsh
+
+- name: Configure zsh
+  hosts: local
+
+  tasks:
+    - name: Create ~/.config/zsh directory
+      ansible.builtin.file:
+        path: ~/.config/zsh
+        state: directory
+        mode: '0755'
+
+    - name: Copy .zshrc
+      ansible.builtin.copy:
+        src: zsh/zshrc
+        dest: ~/.zshrc
+
+    - name: Copy zsh config files
+      ansible.builtin.copy:
+        src: zsh/{{ item }}
+        dest: ~/.config/zsh/{{ item }}
+      loop:
+        - aliases.zsh
+        - env.zsh
+        - functions.zsh
+        - plugins.zsh
+
+    - name: Create ~/.config directory
+      ansible.builtin.file:
+        path: ~/.config
+        state: directory
+        mode: '0755'
+
+    - name: Copy starship config
+      ansible.builtin.copy:
+        src: starship.toml
+        dest: ~/.config/starship.toml
