@@ -1,0 +1,47 @@
+---
+- name: Install Tailscale
+  hosts: local
+  become: true
+
+  tasks:
+    - name: Add Tailscale repository
+      ansible.builtin.get_url:
+        url: https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+        dest: /etc/yum.repos.d/tailscale.repo
+        mode: '0644'
+
+    - name: Install Tailscale
+      ansible.builtin.dnf:
+        name: tailscale
+        state: present
+
+    - name: Enable and start tailscaled service
+      ansible.builtin.service:
+        name: tailscaled
+        enabled: true
+        state: started
+
+    - name: Set operator to avoid requiring root
+      ansible.builtin.command: tailscale set --operator={{ ansible_facts['env']['SUDO_USER'] }}
+      changed_when: false
+
+- name: Configure Tailscale systray
+  hosts: local
+
+  tasks:
+    - name: Create autostart directory
+      ansible.builtin.file:
+        path: ~/.config/autostart
+        state: directory
+        mode: '0755'
+
+    - name: Create systray autostart desktop entry
+      ansible.builtin.copy:
+        dest: ~/.config/autostart/tailscale-systray.desktop
+        mode: '0644'
+        content: |
+          [Desktop Entry]
+          Type=Application
+          Name=Tailscale
+          Exec=tailscale systray
+          Icon=tailscale

@@ -3,3 +3,4 @@
 - import_playbook: playbooks/terminal.yml
 - import_playbook: playbooks/browsers.yml
 - import_playbook: playbooks/spotify.yml
+- import_playbook: playbooks/tailscale.yml
