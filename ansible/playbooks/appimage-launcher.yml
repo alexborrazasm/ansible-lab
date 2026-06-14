@@ -1,0 +1,17 @@
+---
+- name: Install AppImageLauncher
+  hosts: local
+  become: true
+
+  tasks:
+    - name: Download AppImageLauncher RPM
+      ansible.builtin.get_url:
+        url: https://github.com/TheAssassin/AppImageLauncher/releases/download/v3.0.0-beta-3/appimagelauncher_3.0.0-beta-2-gha287.96cb937_x86_64.rpm
+        dest: /tmp/appimagelauncher.rpm
+        mode: '0644'
+
+    - name: Install AppImageLauncher
+      ansible.builtin.dnf:
+        name: /tmp/appimagelauncher.rpm
+        state: present
+        disable_gpg_check: true

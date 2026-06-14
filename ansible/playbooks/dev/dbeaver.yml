@@ -1,0 +1,14 @@
+---
+- name: Install DBeaver
+  hosts: local
+  become: true
+
+  tasks:
+    - name: Enable DBeaver COPR repository
+      ansible.builtin.command: dnf copr enable birkch/dbeaver -y
+      changed_when: false
+
+    - name: Install DBeaver
+      ansible.builtin.dnf:
+        name: dbeaver-ce
+        state: present

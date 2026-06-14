@@ -18,3 +18,4 @@ alias vim="nvim"
 
 # exit
 alias :q="exit"
+alias quit="exit"

@@ -1,3 +1,13 @@
 ---
+- name: System upgrade
+  hosts: local
+  become: true
+
+  tasks:
+    - name: Upgrade all packages
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+
 - import_playbook: playbooks/tpm_luks.yml
 - import_playbook: setup.yml
