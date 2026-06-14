@@ -1,4 +1,5 @@
 ---
+- import_playbook: dev/git.yml
 - import_playbook: dev/nvim.yml
 - import_playbook: dev/vscode.yml
 - import_playbook: dev/docker.yml
